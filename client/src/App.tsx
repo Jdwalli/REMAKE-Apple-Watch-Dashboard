@@ -1,14 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
+import { Sidebar } from "./components/navigation/Sidebar";
+import { Header } from "./components/navigation/Header";
 
-import { Parallax, ParallaxLayer } from "@react-spring/parallax";
+import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+
 
 function App() {
   return (
-    <div>
-      <Parallax pages={5}>
-        <ParallaxLayer></ParallaxLayer>
-      </Parallax>
-    </div>
+    <Router>
+      <div className="h-screen w-screen bg-gray-800">
+        <Header />
+        <Sidebar />
+        <div className="h-screen bg-primary ml-24"></div>
+      </div>
+    </Router>
   );
 }
 
