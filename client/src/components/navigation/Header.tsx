@@ -1,5 +1,6 @@
 import React, { useState, useEffect, FunctionComponent } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Button } from "../common/Button";
 
 const Header: FunctionComponent = () => {
   return (
@@ -7,6 +8,9 @@ const Header: FunctionComponent = () => {
         <span className='ml-2 text-2xl'>
             Apple Watch Dashboard 
         </span>
+        <div className='ml-auto'>
+        <Button variant={"primary"} text={"Upload"}/>
+        </div>
     </div>
   );
 };
