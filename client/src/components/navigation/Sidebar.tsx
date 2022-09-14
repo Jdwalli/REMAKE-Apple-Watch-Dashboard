@@ -1,5 +1,5 @@
 import React, { useState, useEffect, FunctionComponent } from "react";
-import { SidebarData } from "../../helpers/SidebarData";
+import { SidebarData } from "./SidebarData";
 import { Link, useLocation } from "react-router-dom";
 import { FaFireAlt } from "react-icons/fa";
 
