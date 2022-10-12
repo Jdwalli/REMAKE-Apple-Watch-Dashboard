@@ -1,12 +1,13 @@
 import os, re
 import pandas as pd
 import xml.etree.ElementTree as ET
-from multiprocessing import Process
+from multiprocessing import Process, Pool
+import multiprocessing
 
 # Performance Imports
 from tests.Timer import Timer
 
-EXCLUSION_LIST = ["HKCategoryTypeIdentifierMindfulSession", 'HKCategoryTypeIdentifierHighHeartRateEvent', ]
+EXCLUSION_LIST = ["HKCategoryTypeIdentifierMindfulSession", 'HKCategoryTypeIdentifierHighHeartRateEvent']
 
 class Export:
     def __init__(self, path: str):
@@ -35,6 +36,13 @@ class Export:
             return False
     
     def _originates_from_watch(self, sourceName: str) -> bool:
+        """
+        Determines if the sourceName of the data contains the word 'watch'
+        :param sourceName: Source of the data
+        :type sourceName: str
+        :returns: True or False
+        :rtype: boolean
+        """
         return bool(re.search("Watch", sourceName))
 
     def _is_active_path(self, data: str) -> bool:
@@ -50,10 +58,6 @@ class Export:
         if data == "workout-routes": return os.path.exists(self.workout_path)
         if data == "electrocardiograms": return os.path.exists(self.ecg_path)
     
-    def _load_export_data(self):
-        if self.root != False:
-            self.nodes = list(self.root)
-
     def _load_records(self) -> dict:
         t = Timer()
         t.start()
@@ -168,3 +172,48 @@ class Export:
             self._load_workout_records()
             self._load_activity_summaries()
 
+    def get_filenames(self, path: str):
+        filenames = os.listdir(path)
+        filenames = [f for f in filenames if os.path.isfile(
+            os.path.join(path, f)) and not f.startswith(".")]
+        return filenames
+    
+    def _load_workout(self, path:str):
+        with open(os.path.join(self.workout_path, path), "rb") as f:
+            route = ET.parse(f, parser=ET.XMLParser(encoding="utf-8")).getroot()
+        return route
+
+    def load_workouts(self) -> dict:
+        data = {}
+
+        for path in self.get_filenames(self.workout_path):
+            data[path] = []
+        
+        for path in self.get_filenames(self.workout_path):
+            ns = {"gpx": "http://www.topografix.com/GPX/1/1"}
+            tracks = self._load_workout(path).findall('gpx:trk', ns)
+            for track in tracks:
+                track_segments = track.findall('gpx:trkseg', ns)
+                for track_segment in track_segments:
+                    track_points = track_segment.findall('gpx:trkpt', ns)
+                    for track_point in track_points:
+
+                        elevation = track_point.find('gpx:ele', ns).text
+                        time = track_point.find('gpx:time', ns).text
+                        extension = track_point.find('gpx:extensions', ns)
+
+                        lon = track_point.get("lon")
+                        lat = track_point.get("lat")
+                        speed = extension.find('gpx:speed', ns).text
+                        course = extension.find('gpx:course', ns).text
+                        hAcc = extension.find('gpx:hAcc', ns).text
+                        vAcc = extension.find('gpx:vAcc', ns).text
+
+                        try:
+                            data[path].append((lon, lat, elevation, time, speed, course, hAcc, vAcc))
+                        except KeyError:
+                            print("error")
+
+        for key in data.keys():
+            data[key] = pd.DataFrame(data[key], columns=['lon', 'lat', 'elevation', 'time', 'speed', 'course', 'hAcc', 'vAcc'])
+        return data
