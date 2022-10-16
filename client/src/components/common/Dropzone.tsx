@@ -37,17 +37,17 @@ const Dropzone: FunctionComponent<DropzoneProps> = (props:DropzoneProps) => {
         ) : ( 
         <FileDropzone 
             onDrop={(files: File[]) => 
-                props.onDrop != undefined ? props.onDrop(files) : null
+                props.onDrop !== undefined ? props.onDrop(files) : null
             } 
         />
         )}
 
-        { props.createCustomFileList == undefined 
+        { props.createCustomFileList === undefined 
         ? stagedFileList(props.stagedFiles)
         : props.createCustomFileList(props.stagedFiles)}
         <div className='flex justify-center items-center px-4 py-3'>
-            <Button disabled={ props.buttonDisabled == undefined ? false: props.buttonDisabled}
-                onClick={() => props.onButtonClick != undefined ? props.onButtonClick() : null}
+            <Button disabled={ props.buttonDisabled === undefined ? false: props.buttonDisabled}
+                onClick={() => props.onButtonClick !== undefined ? props.onButtonClick() : null}
                 variant={!props.buttonDisabled ? 'primary' : 'disabled'}
                 text={'Upload File...'}
             />
