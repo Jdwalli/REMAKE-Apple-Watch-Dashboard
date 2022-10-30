@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { initialUploadModalState } from '../../types/upload'; 
+import { initialUploadModalState } from '../../types/Upload'; 
 
 export const uploadModalSlice = createSlice({
     name: 'uploadModal',
