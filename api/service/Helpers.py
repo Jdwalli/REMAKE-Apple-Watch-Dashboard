@@ -34,11 +34,11 @@ def upload_health_export(fileObject):
 def read_healthkit_data(dataType: str, dataName: str):
     var_path = os.path.join(os.getcwd(), "data", dataType, f'{dataName}.csv')
     if os.path.exists(var_path):
-        return jsonify(pd.read_csv(var_path, low_memory=True).to_json()), 200
+        return jsonify(pd.read_csv(var_path, low_memory=True).to_json(orient='records')), 200
     return jsonify({'Error' : f'File associated with {dataName} not found'}), 500
 
 def read_workout_route_data(route: str):
     var_path = os.path.join(os.getcwd(), "data", 'Workouts', 'workout-routes', f'{route}.csv')
     if os.path.exists(var_path):
-        return jsonify(pd.read_csv(var_path, low_memory=True).to_json()), 200
+        return jsonify(pd.read_csv(var_path, low_memory=True).to_json(orient='records')), 200
     return jsonify({'Error' : 'Route {route} not found'}), 500
