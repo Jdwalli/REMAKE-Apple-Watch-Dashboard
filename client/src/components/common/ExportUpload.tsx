@@ -2,6 +2,7 @@ import React, { FunctionComponent, useState } from "react";
 import Dropzone from "./Dropzone";
 import  { closeModal } from '../../redux/features/uploadModalSlice'
 import { useDispatch } from 'react-redux'
+import { UploadExport } from "../../helpers/Export" 
 
 interface Props {
   open: boolean;
@@ -27,6 +28,15 @@ const ExportUpload: FunctionComponent<Props> = (props: Props) => {
     dispatch(closeModal())
   }
 
+  const onFileSubmit = () => {
+    if (stagedFiles.length !== 0) {
+      setButtonDisabled(true)
+      UploadExport(stagedFiles).then((resp) => {
+        console.log(resp)
+      })
+    }
+  }
+
   return (
     <div>
       {props.open ? (
@@ -38,7 +48,7 @@ const ExportUpload: FunctionComponent<Props> = (props: Props) => {
           </div>
           <Dropzone
             stagedFiles={stagedFiles}
-            onButtonClick={() => console.log("TODO WRITE UPLOAD FILE CODE")}
+            onButtonClick={onFileSubmit}
             onDrop={onFileDrop}
             buttonDisabled={buttonDisabled}
             dropzoneDisabled={filesUploaded}
