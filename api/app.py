@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from service.Helpers import create_data_files, read_healthkit_data, read_workout_route_data, upload_health_export
+from service.Helpers import create_data_files, read_healthkit_data, read_workout_events, read_workout_route_data, upload_health_export, read_workout_statistics
 
 app = Flask(__name__)
 
@@ -93,6 +93,14 @@ def send_activity_summary_records():
 @app.route("/api/workouts", methods=["GET"])
 def send_all_workouts():
     return read_healthkit_data('Workouts', 'Workout')
+
+@app.route("/api/workouts/statistics", methods=["GET"])
+def send_workout_statistics():
+    return read_workout_statistics()
+
+@app.route("/api/workouts/events", methods=["GET"])
+def send_workout_events():
+    return read_workout_events()
 
 @app.route("/api/workouts/workout-route", methods=["POST"])
 def send_workout_route_record():
