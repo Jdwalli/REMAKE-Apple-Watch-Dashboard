@@ -1,13 +1,9 @@
 import axios, { AxiosError } from 'axios'
-import { useEffect, useState } from 'react'
-
 
 export const UploadExport = async (file: File[]): Promise<string> => {
     const formData: FormData = new FormData()
 
     formData.append("file", file[0])
-
-    // formData.append(file[0].name, , file[0].name)
 
     const axiosConfig = {
         headers: {
