@@ -10,7 +10,7 @@ def upload_export():
 # ACTIVITY HEALTH RECORDS
 @app.route("/api/records", methods=["GET"])
 def send_records_information():
-    return jsonify({'Error' : f'Not implemented yet'}), 500
+    return jsonify({'Error': 'Not implemented yet'}), 500
 
 @app.route("/api/records/StepCount", methods=["GET"])
 def send_step_count_records():
@@ -74,7 +74,7 @@ def send_walking_heart_rate_records():
 
 @app.route("/api/records/HighHeartRateEvent", methods=["GET"])
 def send_high_heart_rate_records():
-    return jsonify({'Error' : f'Not implemented yet'}), 500
+    return jsonify({'Error': 'Not implemented yet'}), 500
 
 @app.route("/api/records/HeartRateVariabilitySDNN", methods=["GET"])
 def send_heart_rate_variability_records():
@@ -82,7 +82,7 @@ def send_heart_rate_variability_records():
     
 @app.route("/api/ecg", methods=["GET"])
 def send_ecg_file_data():
-    return jsonify({'Error' : f'Not implemented yet'}), 500
+    return jsonify({'Error': 'Not implemented yet'}), 500
 
 @app.route("/api/records/ActivitySummary", methods=["GET"])
 def send_activity_summary_records():
