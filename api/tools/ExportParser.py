@@ -1,3 +1,4 @@
+import contextlib
 from asyncore import read
 import os, re
 import pandas as pd
@@ -52,19 +53,14 @@ class Export:
         """
         if data == "export": return os.path.exists(self.export_path)
         if data == "workout-routes": return os.path.exists(self.workout_path)
-        if data == "electrocardiograms": return os.path.exists(self.ecg_path)
-        return True
+        return os.path.exists(self.ecg_path) if data == "electrocardiograms" else True
     
     def _load_records(self) -> dict:
         t = Timer()
         t.start()
-        data = {}
         records = self.root.findall('Record')
 
-        for record in records:
-            if self._originates_from_watch(record.get('sourceName')): 
-                if record.get('type') not in EXCLUSION_LIST:
-                    data[record.get("type")] = []
+        data = {record.get("type"): [] for record in records if self._originates_from_watch(record.get('sourceName')) and record.get('type') not in EXCLUSION_LIST}
 
         for record in records:
             key = record.get("type")
@@ -72,30 +68,22 @@ class Export:
             unit = record.get('unit')
             startDate = record.get('startDate')
             endDate = record.get('endDate')
-            if key in EXCLUSION_LIST:
-                pass
-            else:
-                try:
+            if key not in EXCLUSION_LIST:
+                with contextlib.suppress(KeyError):
                     data[key].append((key, value, unit, startDate, endDate))
-                except KeyError:
-                    pass
-
-        for key in data.keys():
+        for key in data:
             data[key] = pd.DataFrame(data[key], columns=["type", "value", "unit", "startDate", "endDate"])
             df = pd.DataFrame.from_dict(data[key]) 
             df.to_csv(os.path.join(self.uploadPath, "Record", f"{key}.csv"), index = False, header=True)
         t.stop('Record loading completed in')
-            
+
         return data
 
     def _load_activity_summaries(self) -> dict:
         t = Timer()
         t.start()
-        data = {}
         summaries = self.root.findall('ActivitySummary')
-        for summary in summaries:
-            data['Summary'] = []
-
+        data = {'Summary': [] for _ in summaries}
         for summary in summaries:
             dateComponents = summary.get("dateComponents")
             activeEnergyBurned = summary.get("activeEnergyBurned")
@@ -107,26 +95,21 @@ class Export:
             appleExerciseTimeGoal = summary.get('appleExerciseTimeGoal')
             appleStandHours = summary.get('appleStandHours')
             appleStandHoursGoal = summary.get('appleStandHoursGoal')
-            try:
+            with contextlib.suppress(KeyError):
                 data['Summary'].append((dateComponents, activeEnergyBurned,activeEnergyBurnedGoal,activeEnergyBurnedUnit,appleMoveTime,appleMoveTimeGoal,appleExerciseTime,appleExerciseTimeGoal,appleStandHours,appleStandHoursGoal))
-            except KeyError:
-                pass
-        for key in data.keys():
+        for key in data:
             data[key] = pd.DataFrame(data[key], columns=['dateComponents', 'activeEnergyBurned','activeEnergyBurnedGoal','activeEnergyBurnedUnit','appleMoveTime','appleMoveTimeGoal','appleExerciseTime','appleExerciseTimeGoal','appleStandHours','appleStandHoursGoal'])
             df = pd.DataFrame.from_dict(data[key]) 
             df.to_csv(os.path.join(self.uploadPath, "Record", f"Activity{key}.csv"), index = False, header=True)
-        
+
         t.stop('Activity summary loading completed in')
     
     def _load_workout_records(self) -> dict:
         t = Timer()
         t.start()
-        data = {}
         workouts = self.root.findall('Workout')
-        
-        for workout in workouts:
-            data['Workout'] = []
-        
+
+        data = {'Workout': [] for _ in workouts}
         for workout in workouts:
             MetadataEntry = []
             WorkoutEvent = []
@@ -150,7 +133,7 @@ class Export:
                             WorkoutPath = element.attrib["path"]
                 if child.tag == "MetadataEntry":
                     MetadataEntry.append(child.attrib)
-                if child.tag == "WorkoutEvent":
+                elif child.tag == "WorkoutEvent":
                     WorkoutEvent.append(child.attrib)
             MetadataEntry = str(MetadataEntry)
             WorkoutEvent = str(WorkoutEvent)
@@ -158,26 +141,28 @@ class Export:
                 data['Workout'].append((key, duration, unit, totalDistance, totalDistanceUnit, totalEnergyBurned, totalEnergyBurnedUnit, creationDate, startDate, endDate, MetadataEntry, WorkoutEvent, WorkoutPath))
             except Exception as e:
                 print(e)
-        for key in data.keys():
+        for key in data:
             data[key] = pd.DataFrame(data[key], columns=["workoutActivityType", "duration", "unit", "totalDistance", "totalDistanceUnit", "totalEnergyBurned", "totalEnergyBurnedUnit", 'creationDate','startDate', 'endDate', 'MetadataEntry', 'WorkoutEvent', 'WorkoutPath'])
 
-        df = pd.DataFrame.from_dict(data[key]) 
-        df.to_csv(os.path.join(self.uploadPath, "Workouts", f"Workout.csv"), index = False, header=True)
+        df = pd.DataFrame.from_dict(data[key])
+        df.to_csv(os.path.join(self.uploadPath, "Workouts", "Workout.csv"), index=False, header=True)
 
-            
+
+
         t.stop('Workout record loading completed in')
     
     def load_health_data(self):
-        if self.root != False:
-            t = Timer()
-            t.start()
-            if self._is_active_path('export'): 
-                self._load_records()
-                self._load_activity_summaries()
-                self._load_workout_records()
-            if self._is_active_path('workout-routes'): self._load_gpx_data()
-            if self._is_active_path('electrocardiograms'): self._load_ecg_data()
-            t.stop("Total time taken to load all data")
+        if self.root == False:
+            return
+        t = Timer()
+        t.start()
+        if self._is_active_path('export'): 
+            self._load_records()
+            self._load_activity_summaries()
+            self._load_workout_records()
+        if self._is_active_path('workout-routes'): self._load_gpx_data()
+        if self._is_active_path('electrocardiograms'): self._load_ecg_data()
+        t.stop("Total time taken to load all data")
 
     def get_filenames(self, path: str):
         filenames = os.listdir(path)
@@ -190,14 +175,11 @@ class Export:
             route = ET.parse(f, parser=ET.XMLParser(encoding="utf-8")).getroot()
         return route
 
-    def _load_gpx_data(self) -> dict: #IMPLEMENT
+    def _load_gpx_data(self) -> dict:
         t = Timer()
         t.start()
-        data = {}
+        data = {path: [] for path in self.get_filenames(self.workout_path)}
 
-        for path in self.get_filenames(self.workout_path):
-            data[path] = []
-        
         for path in self.get_filenames(self.workout_path):
             ns = {"gpx": "http://www.topografix.com/GPX/1/1"}
             tracks = self._load_gpx_path(path).findall('gpx:trk', ns)
@@ -223,11 +205,11 @@ class Export:
                         except KeyError:
                             print("error")
 
-        for key in data.keys():
+        for key in data:
             data[key] = pd.DataFrame(data[key], columns=['lon', 'lat', 'elevation', 'time', 'speed', 'course', 'hAcc', 'vAcc'])
             df = pd.DataFrame.from_dict(data[key]) 
             df.to_csv(os.path.join(self.uploadPath, "Workouts", 'workout-routes', f"{key}.csv"), index = False, header=True)
-        
+
         t.stop('GPX Route record loading completed in')        
 
 
