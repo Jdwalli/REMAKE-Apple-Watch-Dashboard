@@ -6,7 +6,7 @@ import Layout from "./layout/layout";
 import ExportUpload from "./components/common/ExportUpload";
 
 // Routes
-import HomePage from "./pages/HomePage";
+import HomePage from "./pages/HomePage/Home";
 import ActivityPage from "./pages/ActivityPage";
 import VitalsPage from "./pages/VitalsPage";
 import WorkoutPage from "./pages/WorkoutPage";
