@@ -3,7 +3,7 @@ from asyncore import read
 import os, re
 import pandas as pd
 import xml.etree.ElementTree as ET
-from config.settings import EXCLUSION_LIST
+from config.Settings import EXCLUSION_LIST
 import shutil
 
 # Performance Imports
