@@ -3,6 +3,10 @@ import pandas as pd
 from flask import Response, request, jsonify
 from zipfile import ZipFile
 from tools.ExportParser import Export
+from config.Healthkit import *
+from config.Settings import *
+from service.Analysis import determine_trends
+from service.Helper import round_value, remove_tag
 
 DATA_FILE = os.path.join(os.getcwd(), "data")
 
@@ -16,10 +20,9 @@ def create_data_files():
                 os.mkdir(path)
         os.mkdir(os.path.join(os.getcwd(), "data", 'Workouts', 'workout-routes'))
 
-
 def upload_health_export(fileObject):
     if len(fileObject) == 0:
-        return jsonify({'Error' : f'No file was uploaded'}), 500
+        return jsonify({'Error' : 'No file was uploaded'}), 500
     
     uploadedFile = fileObject["file"]
     with ZipFile(uploadedFile, "r") as zipFile:
@@ -27,9 +30,9 @@ def upload_health_export(fileObject):
             zipFile.extractall(DATA_FILE)
             Data = Export(DATA_FILE, DATA_FILE)
             Data.load_health_data()
-            return jsonify({'Response' : f'File successfully uploaded and parsed'}), 200
+            return jsonify({'Response' : 'File successfully uploaded and parsed'}), 200
         except Exception:
-            return jsonify({'Error' : f'This is not a Apple Health Export'}), 400
+            return jsonify({'Error' : 'This is not a Apple Health Export'}), 400
 
 def read_healthkit_data(dataType: str, dataName: str):
     var_path = os.path.join(os.getcwd(), "data", dataType, f'{dataName}.csv')
@@ -43,7 +46,7 @@ def read_workout_events():
         df = pd.read_csv(var_path, low_memory=True, usecols=['workoutActivityType', 'startDate'])
         df['startDate'] = pd.to_datetime(df['startDate']).dt.date.astype(str)
         return jsonify(df.to_json(orient='records')), 200
-    return jsonify({'Error' : f'File associated with Workouts not found'}), 500
+    return jsonify({'Error': 'File associated with Workouts not found'}), 500
 
 def read_workout_route_data(route: str):
     var_path = os.path.join(os.getcwd(), "data", 'Workouts', 'workout-routes', f'{route}.csv')
@@ -62,10 +65,36 @@ def read_workout_statistics():
         min_result = min_result.rename(columns={'workoutActivityType': 'WorkoutType', 'duration': 'MinDuration', 'totalDistance' : 'MinTotalDistance', 'totalEnergyBurned' : 'MinTotalEnergyBurned'})
         joined_results = pd.merge(max_result, min_result)
         return jsonify(joined_results.to_json(orient='records')), 200
-    return jsonify({'Error' : f'File associated with Workouts not found'}), 500
+    return jsonify({'Error' : 'File associated with Workouts not found'}), 500
+
+
+def read_activity_statistics():
+    activity_statistics = []
+    for activity in HOME_PAGE_ACTIVITIES:
+        var_path = os.path.join(os.getcwd(), "data", 'Record', f'{activity}.csv')
+        if os.path.exists(var_path):
+            df = pd.read_csv(var_path, low_memory=True, usecols=['value'])
+            activity_statistics.append({
+                'metricName' : remove_tag(activity),
+                'value' : int(df.sum()),
+                'metricText' : HOME_PAGE_ACTIVITIES_DESCRIPTIONS[remove_tag(activity)],
+                'change' : round_value(determine_trends(df['value'].tolist()) * 100),
+            })
+    return jsonify(activity_statistics), 200
 
 
 
-
-
-
+# def grab_audio_data():
+#     audio_statistics = []
+#     for activity in AUDIO_FILES:
+#         var_path = os.path.join(os.getcwd(), "data", 'Record', f'{activity}.csv')
+#         if os.path.exists(var_path):
+    #         df = pd.read_csv(var_path, low_memory=True, usecols=['value'])
+    #         activity_statistics.append({
+    #             'metricName' : remove_tag(activity),
+    #             'value' : int(df.sum()),
+    #             'metricText' : HOME_PAGE_ACTIVITIES_DESCRIPTIONS[remove_tag(activity)],
+    #             'change' : round_value(determine_trends(df['value'].tolist()) * 100),
+    #         })
+    # return jsonify(activity_statistics), 200
+    # return NotImplemented

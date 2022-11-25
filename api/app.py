@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from service.Helpers import create_data_files, read_healthkit_data, read_workout_events, read_workout_route_data, upload_health_export, read_workout_statistics
+from service.RoutingMethods import *
 
 app = Flask(__name__)
 
@@ -8,6 +8,11 @@ def upload_export():
     return upload_health_export(request.files)
 
 # ACTIVITY HEALTH RECORDS
+
+@app.route("/api/records/HomeStatistics", methods=["GET"])
+def send_home_activity_records():
+    return read_activity_statistics()
+
 @app.route("/api/records", methods=["GET"])
 def send_records_information():
     return jsonify({'Error': 'Not implemented yet'}), 500
