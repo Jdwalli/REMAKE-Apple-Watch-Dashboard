@@ -82,19 +82,17 @@ def read_activity_statistics():
             })
     return jsonify(activity_statistics), 200
 
-
-
-# def grab_audio_data():
-#     audio_statistics = []
-#     for activity in AUDIO_FILES:
-#         var_path = os.path.join(os.getcwd(), "data", 'Record', f'{activity}.csv')
-#         if os.path.exists(var_path):
-    #         df = pd.read_csv(var_path, low_memory=True, usecols=['value'])
-    #         activity_statistics.append({
-    #             'metricName' : remove_tag(activity),
-    #             'value' : int(df.sum()),
-    #             'metricText' : HOME_PAGE_ACTIVITIES_DESCRIPTIONS[remove_tag(activity)],
-    #             'change' : round_value(determine_trends(df['value'].tolist()) * 100),
-    #         })
-    # return jsonify(activity_statistics), 200
-    # return NotImplemented
+def grab_audio_statistics():
+    audio_statistics = {
+        'ExposureEvents' : 0
+    }
+    for file in AUDIO_FILES:
+        var_path = os.path.join(os.getcwd(), "data", 'Record', f'{file}.csv')
+        if os.path.exists(var_path):
+            if file in AUDIO_EXPOSURE_EVENTS:
+                df = pd.read_csv(var_path, low_memory=True, usecols=['value'])
+                audio_statistics['ExposureEvents'] += len(df)
+            else:
+                df = pd.read_csv(var_path, low_memory=True, usecols=['value'])
+                audio_statistics[f'Highest {remove_tag(file)}'] = float(df.max())
+    return jsonify(audio_statistics), 200

@@ -13,6 +13,3 @@ def determine_trends(nums: list):
     numerator = (len(nums) * multiplied_data) - (summed_nums * summed_index)
     denominator = (len(nums) * squared_index) - summed_index**2
     return numerator/denominator if denominator != 0 else 0
-
-# Round Function
-
