@@ -6,7 +6,7 @@ export const RecordsRequest = async (type: string, record: string): Promise<Obje
         method: "GET"
     }).then((resp) => {
         const data = JSON.stringify(resp.data)
-        return JSON.parse(data)
+        return JSON.parse(JSON.parse(data))
     })
     .catch((error) => {
         console.log(error)
