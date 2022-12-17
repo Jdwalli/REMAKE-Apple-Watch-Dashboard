@@ -107,9 +107,10 @@ def send_workout_statistics():
 def send_workout_events():
     return read_workout_events()
 
-@app.route("/api/workouts/workout-route", methods=["POST"])
+@app.route("/api/workouts/date", methods=["POST"])
 def send_workout_route_record():
-    return read_workout_route_data(request.get_json()['route'])
+    date = request.get_json()['date']
+    return read_specific_workout_data(date)
 
 if __name__ == "__main__":
     create_data_files()
