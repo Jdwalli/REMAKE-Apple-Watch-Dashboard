@@ -6,7 +6,7 @@ export const RecordsRequest = async (type: string, record: string): Promise<Obje
         method: "GET"
     }).then((resp) => {
         const data = JSON.stringify(resp.data)
-        return JSON.parse(JSON.parse(data))
+        return JSON.parse(data)
     })
     .catch((error) => {
         console.log(error)
@@ -16,3 +16,21 @@ export const RecordsRequest = async (type: string, record: string): Promise<Obje
     return result
   };
   
+export const WorkoutRequest = async (date: string): Promise<Object> => {
+    const result = axios({
+        url: `/api/workouts/date`,
+        method: "POST",
+        data: {
+            date: date
+        }
+    }).then((resp) => {
+        const data = JSON.stringify(resp.data)
+        return JSON.parse(data)
+    })
+    .catch((error) => {
+        console.log(error)
+        return error;
+    })
+
+    return result
+  };
