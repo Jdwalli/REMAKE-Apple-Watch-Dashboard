@@ -18,3 +18,17 @@ HOME_PAGE_ACTIVITIES_DESCRIPTIONS = {
     "Apple Stand Time" : "Recorded Standing Minutes",
     "Flights Climbed" : "Recorded Flights Climbed"
 }
+
+METADATA_EXCLUSION_LIST = [
+  'HKTimeZone', 
+  'HKIndoorWorkout'
+]
+
+
+STANDARD_MAP = {
+            'Latitude': [],
+            'Longitude': [],
+            'Center': [33.07, 10.59],
+            'Zoom': 2,
+            'Mapping': []
+    }
