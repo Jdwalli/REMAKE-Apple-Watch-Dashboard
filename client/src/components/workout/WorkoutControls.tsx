@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from "react";
 import Calendar from "../common/Calendar";
-import Breakdowns from "./Breakdowns";
+import { AllBreakdowns } from "./Breakdowns";
 import { WorkoutsStatisticsProps } from "../../types/Workout";
 import { CalendarProps, WorkoutEvents } from "../../types/Calendar";
 
@@ -17,7 +17,7 @@ const WorkoutControls: FunctionComponent<Props> = (props: Props) => {
       <div className="h-2/5 overflow-hidden bg-gray-600 mb-2">
         <Calendar workoutEvents={props.workoutCalendarEvents} />
       </div>
-      <Breakdowns data={props.breakdownData} />
+      <AllBreakdowns data={props.breakdownData} />
     </div>
   );
 };

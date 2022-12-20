@@ -1,8 +1,11 @@
 import React, { FunctionComponent } from "react";
-import { WorkoutsStatisticsProps } from "../../types/Workout";
+import { WorkoutsStatisticsProps, Workout } from "../../types/Workout";
 import { WorkoutIconMapping } from "./WorkoutIcons";
+import { FaFire } from "react-icons/fa";
+import { string } from "prop-types";
+import { convertUnits } from "../../helpers/Formats";
 
-interface BreakdownProps {
+interface AllWorkoutBreakdownProps {
   data: WorkoutsStatisticsProps[];
 }
 
@@ -23,11 +26,11 @@ const WorkoutCard: FunctionComponent<WorkoutCardProps> = (
       <div className="border-b px-4 py-2 bg-gray-200">
         <p className="flex items-center justify-center text-md font-bold text-center">
           <div className="rounded mr-2">
-          {
-            WorkoutIconMapping[
-              formattedWorkout as keyof typeof WorkoutIconMapping
-            ]
-          }{" "}
+            {
+              WorkoutIconMapping[
+                formattedWorkout as keyof typeof WorkoutIconMapping
+              ]
+            }{" "}
           </div>
           <span>{formattedWorkout}</span>
         </p>
@@ -93,8 +96,8 @@ const WorkoutCard: FunctionComponent<WorkoutCardProps> = (
   );
 };
 
-const Breakdowns: FunctionComponent<BreakdownProps> = (
-  props: BreakdownProps
+export const AllBreakdowns: FunctionComponent<AllWorkoutBreakdownProps> = (
+  props: AllWorkoutBreakdownProps
 ) => {
   return (
     <div className="h-3/5 bg-gray-700 overflow-y-auto p-2">
@@ -105,4 +108,71 @@ const Breakdowns: FunctionComponent<BreakdownProps> = (
   );
 };
 
-export default Breakdowns;
+interface SpecificBreakdownProps {
+  data: Workout;
+}
+
+interface BreakdownDesc {
+  name?: string;
+  value?: string | number;
+  unit?: string;
+}
+
+const SelectedBreakdownArea: FunctionComponent<BreakdownDesc> = (
+  props: BreakdownDesc
+) => {
+  return (
+    <div className="flex mx-2">
+      <div className="">
+        {WorkoutIconMapping[props.name as keyof typeof WorkoutIconMapping]}
+      </div>
+      <div className=" relative ml-2">
+        <div className="text-md font-bold">{props.value}</div>
+        <div className="">{props.unit}</div>
+      </div>
+    </div>
+  );
+};
+
+export const SelectedBreakdown: FunctionComponent<SpecificBreakdownProps> = (
+  props: SpecificBreakdownProps
+) => {
+  return (
+    <div className="flex justify-evenly items-center">
+      {
+        <SelectedBreakdownArea
+          name={"Duration"}
+          value={props.data.duration}
+          unit={props.data.unit}
+        />
+      }
+      {
+        <SelectedBreakdownArea
+          name={"Distance"}
+          value={props.data.totalDistance}
+          unit={props.data.totalDistanceUnit}
+        />
+      }
+      {
+        <SelectedBreakdownArea
+          name={"Calories"}
+          value={props.data.totalEnergyBurned}
+          unit={props.data.totalEnergyBurnedUnit}
+        />
+      }
+      {props.data.MetadataEntry?.map((entry) => {
+        if (entry.key === "Elevation Ascended"){
+          return <SelectedBreakdownArea name={entry.key}
+        value={convertUnits(entry.value, entry.unit, 'ft')}
+        unit={'ft'} />;
+        } else{
+          return <SelectedBreakdownArea name={entry.key}
+        value={entry.value}
+        unit={entry.unit} />;
+
+        }
+        
+      })}
+    </div>
+  );
+};
