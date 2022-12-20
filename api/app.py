@@ -1,7 +1,18 @@
 from flask import Flask, request, jsonify
 from service.RoutingMethods import *
+from flask_caching import Cache
 
+
+config = {
+    "DEBUG": True,          # some Flask specific configs
+    "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
+    "CACHE_DEFAULT_TIMEOUT": 3600
+}
 app = Flask(__name__)
+# tell Flask to use the above defined config
+app.config.from_mapping(config)
+cache = Cache(app)
+
 
 @app.route("/api/upload", methods=["POST"])
 def upload_export():
@@ -100,17 +111,26 @@ def send_all_workouts():
     return read_healthkit_data('Workouts', 'Workout')
 
 @app.route("/api/workouts/statistics", methods=["GET"])
+@cache.cached(timeout=3600)
 def send_workout_statistics():
     return read_workout_statistics()
 
 @app.route("/api/workouts/events", methods=["GET"])
+@cache.cached(timeout=3600)
 def send_workout_events():
     return read_workout_events()
 
 @app.route("/api/workouts/date", methods=["POST"])
 def send_workout_route_record():
     date = request.get_json()['date']
-    return read_specific_workout_data(date)
+    cache_key = f'send_workout_route_record_{date}'
+    cached_value = cache.get(cache_key)
+    if cached_value is not None:
+        return cached_value
+    result = read_specific_workout_data(date)
+    cache.set(cache_key, result)
+    return result
+
 
 if __name__ == "__main__":
     create_data_files()
