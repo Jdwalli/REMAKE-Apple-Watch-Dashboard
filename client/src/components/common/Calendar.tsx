@@ -35,6 +35,10 @@ const Calendar: FunctionComponent<CalendarProps> = (props:CalendarProps) => {
     end: endOfMonth(firstDayCurrentMonth),
   })
 
+
+  // set up the state with redux 
+  // change the styling
+
   function previousMonth() {
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: -1 })
     setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
