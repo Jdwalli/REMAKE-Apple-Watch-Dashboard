@@ -9,8 +9,11 @@ from config.Settings import *
 from service.Analysis import determine_trends
 from service.Helper import round_value, remove_tag
 from service.Workout import *
+from flask_caching import Cache
+cache = Cache()
 
 DATA_FILE = os.path.join(os.getcwd(), "data")
+
 
 def create_data_files():
     if not os.path.isdir(DATA_FILE):
@@ -22,6 +25,7 @@ def create_data_files():
                 os.mkdir(path)
         os.mkdir(os.path.join(os.getcwd(), "data",
                  'Workouts', 'workout-routes'))
+
 
 def upload_health_export(fileObject):
     if len(fileObject) == 0:
@@ -37,11 +41,13 @@ def upload_health_export(fileObject):
         except Exception:
             return jsonify({'Error': 'This is not a Apple Health Export'}), 400
 
+
 def read_healthkit_data(dataType: str, dataName: str):
     var_path = os.path.join(os.getcwd(), "data", dataType, f'{dataName}.csv')
     if os.path.exists(var_path):
         return jsonify(pd.read_csv(var_path, low_memory=True).to_json(orient='records')), 200
     return jsonify({'Error': f'File associated with {dataName} not found'}), 500
+
 
 def read_workout_events():
     var_path = os.path.join(os.getcwd(), "data", 'Workouts', 'Workout.csv')
@@ -52,12 +58,14 @@ def read_workout_events():
         return df.to_json(orient='records'), 200
     return jsonify({'Error': 'File associated with Workouts not found'}), 500
 
+
 def read_workout_route_data(route: str):
     var_path = os.path.join(os.getcwd(), "data", 'Workouts',
                             'workout-routes', f'{route}.csv')
     if os.path.exists(var_path):
         return jsonify(pd.read_csv(var_path, low_memory=True).to_json(orient='records')), 200
     return jsonify({'Error': 'Route {route} not found'}), 500
+
 
 def read_specific_workout_data(date):
     var_path = os.path.join(os.getcwd(), "data", 'Workouts', 'Workout.csv')
@@ -90,6 +98,8 @@ def read_specific_workout_data(date):
             if not isinstance(data[index]['WorkoutPath'], float):
                 data[index]['WorkoutGPX'] = package_gpx_data(pd.read_csv(os.path.join(
                     os.getcwd(), "data", 'Workouts', f"{data[index]['WorkoutPath'][1:]}.csv")))
+                data[index]['WorkoutGPX']['Vitals'] = get_vitals_by_data('Heart Rate', pd.to_datetime(data[index]['startDate']).strftime(
+                    "%Y-%m-%d %H:%M:%S %z"), pd.to_datetime(data[index]['endDate']).strftime("%Y-%m-%d %H:%M:%S %z"))
             else:
                 data[index]['WorkoutGPX'] = STANDARD_MAP
             del data[index]['WorkoutPath']
@@ -112,6 +122,7 @@ def read_workout_statistics():
         return joined_results.to_json(orient='records'), 200
     return jsonify({'Error': 'File associated with Workouts not found'}), 500
 
+
 def read_activity_statistics():
     activity_statistics = []
     for activity in HOME_PAGE_ACTIVITIES:
@@ -126,6 +137,7 @@ def read_activity_statistics():
                 'change': round_value(determine_trends(df['value'].tolist()) * 100),
             })
     return jsonify(activity_statistics), 200
+
 
 def grab_audio_statistics():
     audio_statistics = {
@@ -142,3 +154,35 @@ def grab_audio_statistics():
                 audio_statistics[f'Highest {remove_tag(file)}'] = float(
                     df.max())
     return jsonify(audio_statistics), 200
+
+
+def get_vitals_by_data(record, start_date, end_date):
+    """
+    Returns a dataframe of the heart rate data recorded between the start date and end date
+        Parameter(s):
+            start_date (str): Starting timestamp
+            end_date (str): Ending timestamp
+        Returns:
+            Dataframe of heart rate information fitting between the start and ending timestamps
+    """
+
+    if record == "Heart Rate":
+        var_path = os.path.join(
+            os.getcwd(), "data", 'Record', 'HKQuantityTypeIdentifierHeartRate.csv')
+        df = pd.read_csv(
+            var_path, usecols=['startDate',  'endDate', 'value', 'unit'], 
+            parse_dates=['startDate', 'endDate'], dtype={'value': 'float64'})
+
+        # Generate a sequence of dates between start_date and end_date
+        dates = pd.date_range(start=start_date, end=end_date, freq='D')
+
+        # Filter the rows based on whether the startDate column is contained in the generated sequence
+        df = df.loc[df['startDate'].isin(dates)]
+
+        # Convert the startDate column to a readable string
+        df["startDate"] = df["startDate"].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S"))
+
+        # Drop the endDate column
+        df = df.drop(columns=["endDate"])
+
+        return json.loads(df.to_json(orient='records'))
