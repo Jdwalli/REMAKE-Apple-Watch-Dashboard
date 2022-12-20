@@ -1,7 +1,7 @@
 import React, { useEffect, useState, FunctionComponent } from "react";
-import { RecordsRequest } from "../helpers/DataRequests";
+import { RecordsRequest, WorkoutRequest } from "../helpers/DataRequests";
 import { WorkoutEvents } from "../types/Calendar";
-import { WorkoutsStatisticsProps } from "../types/Workout";
+import { WorkoutsStatisticsProps, Workout, Default } from "../types/Workout";
 import WorkoutControls from "../components/workout/WorkoutControls";
 import WorkoutOutputs from "../components/workout/WorkoutOutputs";
 
@@ -10,6 +10,7 @@ const WorkoutPage: FunctionComponent = (props) => {
   const [workoutStatistics, setWorkoutStatistics] = useState<
     WorkoutsStatisticsProps[]
   >([]);
+  const [workoutData, setWorkoutData] = useState<Workout[]>(Default);
 
   useEffect(() => {
     RecordsRequest("workouts", "events").then((response) => {
@@ -29,11 +30,22 @@ const WorkoutPage: FunctionComponent = (props) => {
     });
   }, []);
 
+  useEffect(() => {
+    WorkoutRequest("2022-02-11").then((response) => {
+      if (response) {
+        const data = response as Workout[];
+        setWorkoutData(data);
+      }
+    });
+  }, []);
+
   return (
     <div className="flex h-screen">
-      <WorkoutControls breakdownData={workoutStatistics} workoutCalendarEvents={workoutEvents}  /> 
-      {/* workoutEvents={workoutEvents} */}
-      <WorkoutOutputs  />
+      <WorkoutControls
+        breakdownData={workoutStatistics}
+        workoutCalendarEvents={workoutEvents}
+      />
+      <WorkoutOutputs data={workoutData} />
     </div>
   );
 };
