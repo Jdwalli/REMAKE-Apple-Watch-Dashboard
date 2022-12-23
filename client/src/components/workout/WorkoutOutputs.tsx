@@ -14,16 +14,20 @@ interface Props {
 }
 
 const WorkoutOutputs: FunctionComponent<Props> = (props: Props) => {
-  console.log(props.data)
   const [activeButton, setActiveButton] = useState("speed");
 
   const [index, setIndex] = useState(0);
 
-  const temp = useSelector((state: RootState) => state.workoutIndex.index);
+  const globalIndex = useSelector((state: RootState) => state.workoutIndex.index);
 
   useEffect(() => {
-    setIndex(temp);
-  }, [temp]);
+    if (globalIndex > props.data.length ){
+      setIndex(0)
+    }
+    else {
+      setIndex(globalIndex);
+    }
+  }, [globalIndex]);
 
   return (
     <div className="w-4/5 flex flex-col h-full bg-gray-600">
