@@ -24,7 +24,7 @@ import { Vitals } from "../../types/Vitals";
 
 interface Props {
   data: Vitals[];
-  vitalType: string
+  vitalType: string;
 }
 
 type GraphProps = Props & XYChartProps;
@@ -41,7 +41,8 @@ type DataKey = keyof Accessors;
 type annotationDataKey = DataKey | null;
 
 const VitalsLineChart: FunctionComponent<GraphProps> = (props: GraphProps) => {
-  const [animationTrajectory, setAnimationTrajectory] = useState<AnimationTrajectory | undefined>("center");
+  const [animationTrajectory, setAnimationTrajectory] =
+    useState<AnimationTrajectory | undefined>("center");
   const [sharedTooltip, setSharedTooltip] = useState(true);
   const [annotationDataKey, setAnnotationDataKey] =
     useState<annotationDataKey>(null);
@@ -52,14 +53,11 @@ const VitalsLineChart: FunctionComponent<GraphProps> = (props: GraphProps) => {
     dy: -20,
   });
 
-  
   const dateScaleConfig = { type: "band", paddingInner: 0.3 } as const;
-  const valueScaleConfig = { type: "linear" } as const;
+  const valueScaleConfig = { type: "linear"  } as const;
 
   const getTime = (d: Vitals) => convertTimestamp(d.startDate);
   const getValue = (d: Vitals) => Number(d.value);
-  const vitalsUnit = props.data.length > 0 ?  props.data[0].unit : ''
-
 
   const config = useMemo(
     () => ({
@@ -68,6 +66,8 @@ const VitalsLineChart: FunctionComponent<GraphProps> = (props: GraphProps) => {
     }),
     []
   );
+
+  const UNIT = props.data[0].unit
 
   const accessors = useMemo(
     () => ({
@@ -103,16 +103,6 @@ const VitalsLineChart: FunctionComponent<GraphProps> = (props: GraphProps) => {
         numTicks={4}
       />
 
-            <LineSeries
-              dataKey="startDate"
-              data={props.data}
-              xAccessor={accessors.x.startDate}
-              yAccessor={accessors.y.value}
-              curve={curveLinear}
-            />
-
-
-
       <AnimatedAxis
         key={`time-axis-${animationTrajectory}`}
         orientation={"bottom"}
@@ -125,7 +115,17 @@ const VitalsLineChart: FunctionComponent<GraphProps> = (props: GraphProps) => {
         numTicks={4}
         animationTrajectory={"center"}
       />
-      {/* {annotationDataKey && props.data[annotationDataIndex] && (
+
+<LineSeries
+        dataKey={props.vitalType}
+        data={props.data}
+        xAccessor={accessors.x.startDate}
+        yAccessor={accessors.y.value}
+        curve={curveLinear}
+      />
+
+
+      {annotationDataKey && props.data[annotationDataIndex] && (
         <AnimatedAnnotation
           dataKey={annotationDataKey}
           datum={props.data[annotationDataIndex]}
@@ -140,8 +140,8 @@ const VitalsLineChart: FunctionComponent<GraphProps> = (props: GraphProps) => {
           <AnnotationLabel
             title={annotationDataKey}
             subtitle={`${convertTimestamp(
-              props.data[annotationDataIndex].time
-            )}, ${props.data[annotationDataIndex][`${annotationDataKey.toLowerCase()}`]}`}
+              props.data[annotationDataIndex].startDate
+            )}, ${props.data[annotationDataIndex].value}`}
             width={135}
             backgroundProps={{
               stroke: darkTheme.gridStyles.stroke,
@@ -150,9 +150,9 @@ const VitalsLineChart: FunctionComponent<GraphProps> = (props: GraphProps) => {
             }}
           />
         </AnimatedAnnotation>
-      )} */}
-      {/* {
-        <Tooltip<GPXMapping>
+      )}
+      {
+        <Tooltip<Vitals>
           showHorizontalCrosshair={false}
           showVerticalCrosshair={true}
           snapTooltipToDatumX={true}
@@ -173,7 +173,7 @@ const VitalsLineChart: FunctionComponent<GraphProps> = (props: GraphProps) => {
               ).map((type) => {
                 const graphData =
                   tooltipData?.nearestDatum?.datum &&
-                  accessors["y"][type](tooltipData?.nearestDatum?.datum);
+                  accessors["y"].value(tooltipData?.nearestDatum?.datum);
 
                 return (
                   <div key={type}>
@@ -190,14 +190,14 @@ const VitalsLineChart: FunctionComponent<GraphProps> = (props: GraphProps) => {
                     </em>{" "}
                     {graphData == null || Number.isNaN(graphData)
                       ? ""
-                      : `${graphData} `}
+                      : `${graphData} ${UNIT}`}
                   </div>
                 );
               })}
             </>
           )}
         />
-      } */}
+      }
     </XYChart>
   );
 };
