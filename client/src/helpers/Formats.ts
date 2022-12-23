@@ -11,16 +11,20 @@ export const TimeDifference = (date: string, timeValue?: string) => {
   return RelativeTimeFormat.format(-timeDelta / (1000 * 60 * 60 * 24), "days");
 };
 export const convertTimestamp = (timestamp: string): string => {
-  const date = new Date(timestamp);
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
-  const seconds = date.getSeconds();
-  const ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  const paddedMinutes = minutes.toString().padStart(2, "0");
-  const paddedSeconds = seconds.toString().padStart(2, "0");
-  return `${hours}:${paddedMinutes}:${paddedSeconds} ${ampm}`;
+  if (timestamp !== '') {
+    const date = new Date(timestamp);
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const paddedMinutes = minutes.toString().padStart(2, "0");
+    const paddedSeconds = seconds.toString().padStart(2, "0");
+    return `${hours}:${paddedMinutes}:${paddedSeconds} ${ampm}`;
+  }
+  return ""
+  
 };
 
 export const convertUnits = (

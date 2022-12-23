@@ -20,9 +20,7 @@ export const WorkoutRequest = async (date: string): Promise<Object> => {
     const result = axios({
         url: `/api/workouts/date`,
         method: "POST",
-        data: {
-            date: date
-        }
+        data: date
     }).then((resp) => {
         const data = JSON.stringify(resp.data)
         return JSON.parse(data)

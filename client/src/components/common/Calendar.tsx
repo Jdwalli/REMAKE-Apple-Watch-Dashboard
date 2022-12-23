@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useState, useRef } from "react";
 import { CalendarProps } from "../../types/Calendar";
+import { useSelector, useDispatch } from 'react-redux';
 import {
   add,
   eachDayOfInterval,
@@ -18,14 +19,31 @@ import {
   FaArrowRight,
   FaArrowLeft,
 } from "react-icons/fa"; 
+import { updateDate } from '../../redux/features/workoutDateSlice';
+import { updateIndex } from "../../redux/features/workoutIndexSlice";
 
+import { RootState } from "../../redux/store";
 
 function classNames(...classes: (string | boolean)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
+
+
 const Calendar: FunctionComponent<CalendarProps> = (props:CalendarProps) => {
-  let today = startOfToday()
+  const { date } = useSelector((state: RootState) => state.workoutDate);
+  const dispatch = useDispatch();
+
+
+  const handleDateChange = (day: Date) => {
+    setSelectedDay(day)
+    const apiDate = day.toISOString().slice(0, 10)
+    dispatch(updateDate(apiDate));
+    dispatch(updateIndex(0));
+  };
+
+  // let today = startOfToday()
+  const today = new Date(date);
   let [selectedDay, setSelectedDay] = useState(today)
   let [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'))
   let firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', new Date())
@@ -35,9 +53,6 @@ const Calendar: FunctionComponent<CalendarProps> = (props:CalendarProps) => {
     end: endOfMonth(firstDayCurrentMonth),
   })
 
-
-  // set up the state with redux 
-  // change the styling
 
   function previousMonth() {
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: -1 })
@@ -95,7 +110,8 @@ const Calendar: FunctionComponent<CalendarProps> = (props:CalendarProps) => {
                 >
                   <button
                     type="button"
-                    onClick={() => setSelectedDay(day)}
+                    // onClick={() => setSelectedDay(day)}
+                    onClick={() => handleDateChange(day)}
                     className={classNames(
                       isEqual(day, selectedDay) && 'text-white',
                       !isEqual(day, selectedDay) &&
@@ -116,7 +132,7 @@ const Calendar: FunctionComponent<CalendarProps> = (props:CalendarProps) => {
                       !isEqual(day, selectedDay) && 'hover:bg-gray-200',
                       (isEqual(day, selectedDay) || isToday(day)) &&
                         'font-semibold',
-                      'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
+                      ' mx-auto flex h-8 w-8 items-center justify-center rounded-full'
                     )}
                   >
                     <time dateTime={format(day, 'yyyy-MM-dd')}>

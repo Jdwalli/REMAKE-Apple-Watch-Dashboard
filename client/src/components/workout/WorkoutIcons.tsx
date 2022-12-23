@@ -15,6 +15,10 @@ import {
   FaMountain,
 } from "react-icons/fa";
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCoffee } from '@fortawesome/free-solid-svg-icons'
+
+
 export const WorkoutIconMapping = {
   Duration: <FaClock className="text-5xl rounded-full bg-green-500 p-2" />,
   Distance: (

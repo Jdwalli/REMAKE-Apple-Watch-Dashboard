@@ -5,7 +5,6 @@ import VitalsLineChart from "../charts/VitalsLineChart";
 import { GPXMapping, GPXChartOptions } from "../../types/Workout";
 import { Vitals } from "../../types/Vitals";
 
-
 interface Props {
   data: GPXMapping[];
   vitalsData: Vitals[];
@@ -61,14 +60,27 @@ const GraphArea: FunctionComponent<Props> = (props: Props) => {
         </div>
       </header>
 
-      <div className="h-full">
-        {currentGraph === "Heart Rate" ? (
-          <ParentSize debounceTime={15}>
-            {({ width: visWidth, height: visHeight }) => (
-              <VitalsLineChart data={props.vitalsData} vitalType={"Heart Rate"} width={visWidth} height={visHeight} />
-            )}
-          </ParentSize>
+      {currentGraph === "Heart Rate" ? (
+        props.vitalsData ? (
+          <div className="h-full">
+            <ParentSize debounceTime={15}>
+              {({ width: visWidth, height: visHeight }) => (
+                <VitalsLineChart
+                  data={props.vitalsData}
+                  vitalType={"Heart Rate"}
+                  width={visWidth}
+                  height={visHeight}
+                />
+              )}
+            </ParentSize>
+          </div>
         ) : (
+          <div className="h-full text-white text-6xl text-center flex justify-center items-center"> 
+            <p>No heart rate data available</p>
+          </div>
+        )
+      ) : props.data[0] ? (
+        <div className="h-full">
           <ParentSize debounceTime={15}>
             {({ width: visWidth, height: visHeight }) => (
               <WorkoutLineChart
@@ -79,8 +91,12 @@ const GraphArea: FunctionComponent<Props> = (props: Props) => {
               />
             )}
           </ParentSize>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="h-full text-white text-6xl text-center flex justify-center items-center"> 
+          <p>No {currentGraph.toLowerCase()} data available</p>
+        </div>
+      )}
     </>
   );
 };

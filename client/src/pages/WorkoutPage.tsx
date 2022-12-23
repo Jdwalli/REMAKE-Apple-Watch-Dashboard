@@ -4,6 +4,8 @@ import { WorkoutEvents } from "../types/Calendar";
 import { WorkoutsStatisticsProps, Workout, Default } from "../types/Workout";
 import WorkoutControls from "../components/workout/WorkoutControls";
 import WorkoutOutputs from "../components/workout/WorkoutOutputs";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/types";
 
 const WorkoutPage: FunctionComponent = (props) => {
   const [workoutEvents, setWorkoutEvents] = useState<WorkoutEvents[]>([]);
@@ -11,6 +13,10 @@ const WorkoutPage: FunctionComponent = (props) => {
     WorkoutsStatisticsProps[]
   >([]);
   const [workoutData, setWorkoutData] = useState<Workout[]>(Default);
+
+  const selectedWorkoutDate = useSelector(
+    (state: RootState) => state.workoutDate
+  );
 
   useEffect(() => {
     RecordsRequest("workouts", "events").then((response) => {
@@ -31,13 +37,13 @@ const WorkoutPage: FunctionComponent = (props) => {
   }, []);
 
   useEffect(() => {
-    WorkoutRequest("2022-02-11").then((response) => {
+    WorkoutRequest(selectedWorkoutDate).then((response) => {
       if (response) {
         const data = response as Workout[];
         setWorkoutData(data);
       }
     });
-  }, []);
+  }, [selectedWorkoutDate]);
 
   return (
     <div className="flex h-screen">

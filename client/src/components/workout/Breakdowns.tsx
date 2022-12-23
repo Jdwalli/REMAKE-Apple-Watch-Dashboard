@@ -69,7 +69,7 @@ const WorkoutCard: FunctionComponent<WorkoutCardProps> = (
             </div>
           </>
         ) : null}
-        {props.data.MinTotalDistance > 0 ? (
+        {props.data.MinTotalDistance !== 0 ? (
           <>
             <div className="flex justify-between">
               <span className="font-semibold text-sm">Min Distance:</span>{" "}
@@ -137,41 +137,49 @@ const SelectedBreakdownArea: FunctionComponent<BreakdownDesc> = (
 export const SelectedBreakdown: FunctionComponent<SpecificBreakdownProps> = (
   props: SpecificBreakdownProps
 ) => {
+  console.log(props.data.totalDistance !== 0);
+
   return (
     <div className="flex justify-evenly items-center">
-      {
+      {props.data.duration && props.data.duration !== 0 && (
         <SelectedBreakdownArea
           name={"Duration"}
           value={props.data.duration}
           unit={props.data.unit}
         />
-      }
-      {
+      )}
+      {props.data.totalDistance && props.data.totalDistance > 0 ? (
         <SelectedBreakdownArea
           name={"Distance"}
           value={props.data.totalDistance}
           unit={props.data.totalDistanceUnit}
         />
-      }
-      {
+      ) : null}
+      {props.data.totalEnergyBurned && props.data.totalEnergyBurned && (
         <SelectedBreakdownArea
           name={"Calories"}
           value={props.data.totalEnergyBurned}
           unit={props.data.totalEnergyBurnedUnit}
         />
-      }
+      )}
       {props.data.MetadataEntry?.map((entry) => {
-        if (entry.key === "Elevation Ascended"){
-          return <SelectedBreakdownArea name={entry.key}
-        value={convertUnits(entry.value, entry.unit, 'ft')}
-        unit={'ft'} />;
-        } else{
-          return <SelectedBreakdownArea name={entry.key}
-        value={entry.value}
-        unit={entry.unit} />;
-
+        if (entry.key === "Elevation Ascended") {
+          return (
+            <SelectedBreakdownArea
+              name={entry.key}
+              value={convertUnits(entry.value, entry.unit, "ft")}
+              unit={"ft"}
+            />
+          );
+        } else {
+          return (
+            <SelectedBreakdownArea
+              name={entry.key}
+              value={entry.value}
+              unit={entry.unit}
+            />
+          );
         }
-        
       })}
     </div>
   );
