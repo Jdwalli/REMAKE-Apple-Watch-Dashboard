@@ -32,3 +32,8 @@ STANDARD_MAP = {
             'Zoom': 2,
             'Mapping': []
     }
+
+EMPTY_WORKOUT = [{
+    'WorkoutGPX' : STANDARD_MAP,
+    'workoutActivityType': "No Workout",
+}]
