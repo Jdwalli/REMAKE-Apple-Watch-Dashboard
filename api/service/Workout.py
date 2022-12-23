@@ -16,12 +16,15 @@ def determine_zoom():
 
 
 def remove_metadata(metadata_list):
-    return [
-        {'key': remove_tag(element['key']), 'value': float(
-            element['value'].split(' ')[0]), 'unit': element['value'].split(' ')[1]}
-        for element in metadata_list['MetadataEntry']
-        if element['key'] not in METADATA_EXCLUSION_LIST
-    ]
+    try:
+        return [
+            {'key': remove_tag(element['key']), 'value': float(
+                element['value'].split(' ')[0]), 'unit': element['value'].split(' ')[1]}
+            for element in metadata_list['MetadataEntry']
+            if element['key'] not in METADATA_EXCLUSION_LIST
+        ]
+    except Exception:
+        return []
 
 
 def package_gpx_data(df):

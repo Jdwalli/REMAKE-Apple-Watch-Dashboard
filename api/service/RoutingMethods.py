@@ -103,7 +103,8 @@ def read_specific_workout_data(date):
             else:
                 data[index]['WorkoutGPX'] = STANDARD_MAP
             del data[index]['WorkoutPath']
-    return jsonify(data)
+    return jsonify(EMPTY_WORKOUT) if len(data) == 0 else jsonify(data)
+
 
 def read_workout_statistics():
     var_path = os.path.join(os.getcwd(), "data", 'Workouts', 'Workout.csv')
@@ -170,19 +171,15 @@ def get_vitals_by_data(record, start_date, end_date):
         var_path = os.path.join(
             os.getcwd(), "data", 'Record', 'HKQuantityTypeIdentifierHeartRate.csv')
         df = pd.read_csv(
-            var_path, usecols=['startDate',  'endDate', 'value', 'unit'], 
-            parse_dates=['startDate', 'endDate'], dtype={'value': 'float64'})
+            var_path, usecols=['startDate',  'endDate', 'value', 'unit'],
+            dtype={'value': 'float64'})
 
-        # Generate a sequence of dates between start_date and end_date
-        dates = pd.date_range(start=start_date, end=end_date, freq='D')
-
-        # Filter the rows based on whether the startDate column is contained in the generated sequence
-        df = df.loc[df['startDate'].isin(dates)]
-
-        # Convert the startDate column to a readable string
-        df["startDate"] = df["startDate"].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S"))
-
-        # Drop the endDate column
+        df = df.loc[
+            (
+                (df['startDate'] > start_date) &
+                (df["endDate"] <= end_date)
+            )
+        ]
         df = df.drop(columns=["endDate"])
 
         return json.loads(df.to_json(orient='records'))
