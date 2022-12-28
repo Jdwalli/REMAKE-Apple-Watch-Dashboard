@@ -129,7 +129,7 @@ def send_workout_route_record():
         return cached_value
     result = read_specific_workout_data(date)
     cache.set(cache_key, result)
-    return result
+    return jsonify(result)
 
 
 if __name__ == "__main__":

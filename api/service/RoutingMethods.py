@@ -70,18 +70,17 @@ def read_workout_route_data(route: str):
 def read_specific_workout_data(date):
     var_path = os.path.join(os.getcwd(), "data", 'Workouts', 'Workout.csv')
     if os.path.exists(var_path):
-
-        data = format_numbers(query_by_date(pd.read_csv(
-            var_path), 'startDate', date).to_dict('records'))
-
+        data = format_numbers(query_by_date((pd.read_csv(
+            var_path)), 'startDate', date).to_dict('records'))
+        
         for index in range(len(data)):
             if not isinstance(data[index]['MetadataEntry'], float):
                 data[index]['MetadataEntry'] = json.loads(
                     data[index]['MetadataEntry'].replace("'", '"'))
-
+                
                 data[index]['workoutActivityType'] = format_workout_name(
                     data[index])
-
+                
                 data[index]['MetadataEntry'] = remove_metadata(data[index])
             else:
                 del data[index]['MetadataEntry']
@@ -95,7 +94,7 @@ def read_specific_workout_data(date):
             else:
                 del data[index]['WorkoutEvent']
 
-            if not isinstance(data[index]['WorkoutPath'], float):
+            if not isinstance(data[index]['WorkoutPath'], float) and data[index]['WorkoutPath'] != '' :
                 data[index]['WorkoutGPX'] = package_gpx_data(pd.read_csv(os.path.join(
                     os.getcwd(), "data", 'Workouts', f"{data[index]['WorkoutPath'][1:]}.csv")))
                 data[index]['WorkoutGPX']['Vitals'] = get_vitals_by_data('Heart Rate', pd.to_datetime(data[index]['startDate']).strftime(
@@ -103,7 +102,7 @@ def read_specific_workout_data(date):
             else:
                 data[index]['WorkoutGPX'] = STANDARD_MAP
             del data[index]['WorkoutPath']
-    return jsonify(EMPTY_WORKOUT) if len(data) == 0 else jsonify(data)
+    return EMPTY_WORKOUT if len(data) == 0 else data
 
 
 def read_workout_statistics():

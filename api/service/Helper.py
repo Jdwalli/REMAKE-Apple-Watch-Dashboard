@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import numpy as np
 
 def round_value(x):
     """ Rounds value passed into it to the nearest two decimal points"""
@@ -14,6 +15,8 @@ def remove_tag(tag):
     if tag[:21] in ('HKWorkoutActivityType'):
         return re.sub(r"(\w)([A-Z])", r"\1 \2", tag[21:])
 
+
 def query_by_date(df, column, date):
+    df = df.replace(np.nan, '', regex=True)
     df[column] = pd.to_datetime(df[column])
     return df.loc[df[column].dt.date == pd.to_datetime(date).date()]

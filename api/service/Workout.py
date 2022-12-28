@@ -2,6 +2,7 @@ from config.Settings import *
 from service.Helper import *
 from config.Healthkit import *
 import json
+from math import log
 
 def convert():
     return NotImplementedError
@@ -10,9 +11,19 @@ def convert():
 def determine_midpoint(lat, lon):
     return [lat[len(lat) // 2], lon[len(lon) // 2]]
 
+def determine_zoom(longitudes, latitudes):
+    """
+    The logarithm function is used to determine the zoom level for a map so that all points are visible because the logarithm function can be used to calculate the zoom level needed to fit a set of coordinates within a given area. This is useful for maps because it allows you to calculate the zoom level needed to fit a set of coordinates within the visible area of the map, which ensures that all points are visible. This can be useful when you have a large number of points that you want to display on a map, as it allows you to zoom out to a level where all points are visible without having to manually adjust the zoom level.
+    """
+    min_longitude = min(longitudes)
+    max_longitude = max(longitudes)
+    min_latitude = min(latitudes)
+    max_latitude = max(latitudes)
 
-def determine_zoom():
-    return 15
+    width = max_longitude - min_longitude
+    height = max_latitude - min_latitude
+
+    return int(round(log(360 / width, 2))) - 1
 
 
 def remove_metadata(metadata_list):
@@ -32,7 +43,7 @@ def package_gpx_data(df):
         'Longitude': df['lon'].tolist(), 'Latitude': df['lat'].tolist()}
     workout_data["Center"] = determine_midpoint(
         workout_data['Latitude'], workout_data['Longitude'])
-    workout_data["Zoom"] = determine_zoom()
+    workout_data["Zoom"] = determine_zoom(workout_data['Latitude'], workout_data['Longitude'])
     df = df.drop(columns=['lon', 'lat'], axis=1)
     workout_data['Mapping'] = json.loads(df.to_json(orient='records'))
     return workout_data
@@ -58,5 +69,5 @@ def format_workout_name(workout_data):
             for metadata in workout_data['MetadataEntry']
             if metadata['key'] == 'HKIndoorWorkout'
         ),
-        "",
+        remove_tag(workout_data['workoutActivityType']),
     )
