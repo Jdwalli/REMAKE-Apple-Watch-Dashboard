@@ -67,6 +67,10 @@ export interface Workout {
   totalDistanceUnit?: string;
   totalEnergyBurned?: number;
   totalEnergyBurnedUnit?: string;
+  minimumHeartRate : number | string
+  maximumHeartRate : number | string
+  averageHeartRate : number | string
+  heartRateUnit? : string
 }
 
 export const Default: Workout[] = [
@@ -95,6 +99,9 @@ export const Default: Workout[] = [
       ],
     },
     workoutActivityType: "No Workout",
+    minimumHeartRate: "",
+    maximumHeartRate: '',
+    averageHeartRate: ''
   },
 ];
 

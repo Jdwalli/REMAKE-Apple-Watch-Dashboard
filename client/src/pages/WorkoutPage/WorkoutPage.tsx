@@ -1,11 +1,11 @@
 import React, { useEffect, useState, FunctionComponent } from "react";
-import { RecordsRequest, WorkoutRequest } from "../helpers/DataRequests";
-import { WorkoutEvents } from "../types/Calendar";
-import { WorkoutsStatisticsProps, Workout, Default } from "../types/Workout";
-import WorkoutControls from "../components/workout/WorkoutControls";
-import WorkoutOutputs from "../components/workout/WorkoutOutputs";
+import { RecordsRequest, WorkoutRequest } from "../../helpers/DataRequests";
+import { WorkoutEvents } from "../../types/Calendar";
+import { WorkoutsStatisticsProps, Workout, Default } from "../../types/Workout";
+import WorkoutControls from "../../components/workout/WorkoutControls";
+import WorkoutOutputs from "../../components/workout/WorkoutOutputs";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/types";
+import { RootState } from "../../redux/types";
 
 const WorkoutPage: FunctionComponent = (props) => {
   const [workoutEvents, setWorkoutEvents] = useState<WorkoutEvents[]>([]);

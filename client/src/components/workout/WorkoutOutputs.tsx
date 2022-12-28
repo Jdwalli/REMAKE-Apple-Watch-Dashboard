@@ -15,6 +15,7 @@ interface Props {
 
 const WorkoutOutputs: FunctionComponent<Props> = (props: Props) => {
   const [activeButton, setActiveButton] = useState("speed");
+  console.log(typeof(props.data), props.data)
 
   const [index, setIndex] = useState(0);
 
@@ -27,7 +28,7 @@ const WorkoutOutputs: FunctionComponent<Props> = (props: Props) => {
     else {
       setIndex(globalIndex);
     }
-  }, [globalIndex]);
+  }, [props.data.length, globalIndex]);
 
   return (
     <div className="w-4/5 flex flex-col h-full bg-gray-600">

@@ -9,7 +9,7 @@ import ExportUpload from "./components/common/ExportUpload";
 import HomePage from "./pages/HomePage/Home";
 import ActivityPage from "./pages/ActivityPage";
 import VitalsPage from "./pages/VitalsPage";
-import WorkoutPage from "./pages/WorkoutPage";
+import WorkoutPage from "./pages/WorkoutPage/WorkoutPage";
 import SleepPage from "./pages/SleepPage";
 import ReportsPage from "./pages/ReportsPage";
 

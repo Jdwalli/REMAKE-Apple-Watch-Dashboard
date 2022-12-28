@@ -36,13 +36,21 @@ const WorkoutCard: FunctionComponent<WorkoutCardProps> = (
         </p>
       </div>
       <div className="px-4 py-3 bg-white">
-        <div className="flex justify-between">
+      {props.data.MaxDuration > 0 ? (
+          <>
+            <div className="flex justify-between">
           <span className="font-semibold text-sm">Max Duration:</span>{" "}
           <span className="font-bold text-indigo-600 text-sm">
             {props.data.MaxDuration}
           </span>
         </div>
-        <div className="flex justify-between">
+          </>
+        ) : null}
+
+
+{props.data.MaxTotalEnergyBurned > 0 ? (
+          <>
+            <div className="flex justify-between">
           <span className="font-semibold text-sm">
             Max Total Energy Burned:
           </span>{" "}
@@ -50,7 +58,12 @@ const WorkoutCard: FunctionComponent<WorkoutCardProps> = (
             {props.data.MaxTotalEnergyBurned}
           </span>
         </div>
-        <div className="flex justify-between">
+          </>
+        ) : null}
+
+{props.data.MinTotalEnergyBurned > 0 ? (
+          <>
+            <div className="flex justify-between">
           <span className="font-semibold text-sm">
             Min Total Energy Burned:
           </span>{" "}
@@ -58,6 +71,12 @@ const WorkoutCard: FunctionComponent<WorkoutCardProps> = (
             {props.data.MinTotalEnergyBurned}
           </span>
         </div>
+          </>
+        ) : null}
+        
+        
+        
+        
 
         {props.data.MaxTotalDistance > 0 ? (
           <>
@@ -69,7 +88,7 @@ const WorkoutCard: FunctionComponent<WorkoutCardProps> = (
             </div>
           </>
         ) : null}
-        {props.data.MinTotalDistance !== 0 ? (
+        {props.data.MinTotalDistance > 0 ? (
           <>
             <div className="flex justify-between">
               <span className="font-semibold text-sm">Min Distance:</span>{" "}
@@ -137,10 +156,17 @@ const SelectedBreakdownArea: FunctionComponent<BreakdownDesc> = (
 export const SelectedBreakdown: FunctionComponent<SpecificBreakdownProps> = (
   props: SpecificBreakdownProps
 ) => {
-  console.log(props.data.totalDistance !== 0);
 
   return (
     <div className="flex justify-evenly items-center">
+      {props.data.minimumHeartRate && props.data.minimumHeartRate > 0 && (
+        <SelectedBreakdownArea
+          name={"Heart"}
+          value={props.data.minimumHeartRate}
+          unit={`Min BPM`}
+        />
+      )}
+
       {props.data.duration && props.data.duration !== 0 && (
         <SelectedBreakdownArea
           name={"Duration"}
@@ -162,6 +188,17 @@ export const SelectedBreakdown: FunctionComponent<SpecificBreakdownProps> = (
           unit={props.data.totalEnergyBurnedUnit}
         />
       )}
+      
+
+{props.data.averageHeartRate && props.data.averageHeartRate !== 0 && (
+        <SelectedBreakdownArea
+          name={"Heart"}
+          value={props.data.averageHeartRate}
+          unit={`Avg BPM`}
+        />
+      )}
+
+
       {props.data.MetadataEntry?.map((entry) => {
         if (entry.key === "Elevation Ascended") {
           return (
@@ -181,6 +218,13 @@ export const SelectedBreakdown: FunctionComponent<SpecificBreakdownProps> = (
           );
         }
       })}
+      {props.data.maximumHeartRate && props.data.maximumHeartRate  !== 0 && (
+        <SelectedBreakdownArea
+          name={"Heart"}
+          value={props.data.maximumHeartRate}
+          unit={`Max BPM`}
+        />
+      )}
     </div>
   );
 };

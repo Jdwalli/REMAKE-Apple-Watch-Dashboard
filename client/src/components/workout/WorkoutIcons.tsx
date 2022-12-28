@@ -13,18 +13,16 @@ import {
   FaSuperpowers,
   FaHandHoldingWater,
   FaMountain,
+  FaHeart,
 } from "react-icons/fa";
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCoffee } from '@fortawesome/free-solid-svg-icons'
 
 
 export const WorkoutIconMapping = {
   Duration: <FaClock className="text-5xl rounded-full bg-green-500 p-2" />,
   Distance: (
-    <FaMapMarkerAlt className="text-5xl rounded-full bg-orange-500 p-2" />
+    <FaMapMarkerAlt className="text-5xl rounded-full bg-purple-500 p-2" />
   ),
-  Calories: <FaFire className="text-5xl rounded-full bg-red-500 p-2" />,
+  Calories: <FaFire className="text-5xl rounded-full bg-orange-500 p-2" />,
   "Elevation Ascended": (
     <FaMountain className="text-5xl rounded-full bg-green-300 p-2" />
   ),
@@ -37,6 +35,7 @@ export const WorkoutIconMapping = {
   "Average ME Ts": (
     <FaSuperpowers className="text-5xl rounded-full bg-yellow-500 p-2" />
   ),
+  Heart: <FaHeart className="text-5xl rounded-full bg-red-500 p-2" />,
   Walking: <FaWalking />,
   Running: <FaRunning />,
   Cycling: <FaBiking />,
