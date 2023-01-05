@@ -6,14 +6,12 @@ from zipfile import ZipFile
 from tools.ExportParser import Export
 from config.Healthkit import *
 from config.Settings import *
-from service.Analysis import determine_trends
+from service.Analysis import determine_value_trend
 from service.Helper import round_value, remove_tag
 from service.Workout import *
-from flask_caching import Cache
-cache = Cache()
+
 
 DATA_FILE = os.path.join(os.getcwd(), "data")
-
 
 def create_data_files():
     if not os.path.isdir(DATA_FILE):
@@ -25,7 +23,6 @@ def create_data_files():
                 os.mkdir(path)
         os.mkdir(os.path.join(os.getcwd(), "data",
                  'Workouts', 'workout-routes'))
-
 
 def upload_health_export(fileObject):
     if len(fileObject) == 0:
@@ -41,13 +38,11 @@ def upload_health_export(fileObject):
         except Exception:
             return jsonify({'Error': 'This is not a Apple Health Export'}), 400
 
-
 def read_healthkit_data(dataType: str, dataName: str):
     var_path = os.path.join(os.getcwd(), "data", dataType, f'{dataName}.csv')
     if os.path.exists(var_path):
         return jsonify(pd.read_csv(var_path, low_memory=True).to_json(orient='records')), 200
     return jsonify({'Error': f'File associated with {dataName} not found'}), 500
-
 
 def read_workout_events():
     var_path = os.path.join(os.getcwd(), "data", 'Workouts', 'Workout.csv')
@@ -58,14 +53,12 @@ def read_workout_events():
         return df.to_json(orient='records'), 200
     return jsonify({'Error': 'File associated with Workouts not found'}), 500
 
-
 def read_workout_route_data(route: str):
     var_path = os.path.join(os.getcwd(), "data", 'Workouts',
                             'workout-routes', f'{route}.csv')
     if os.path.exists(var_path):
         return jsonify(pd.read_csv(var_path, low_memory=True).to_json(orient='records')), 200
     return jsonify({'Error': 'Route {route} not found'}), 500
-
 
 def read_specific_workout_data(date):
     var_path = os.path.join(os.getcwd(), "data", 'Workouts', 'Workout.csv')
@@ -104,7 +97,6 @@ def read_specific_workout_data(date):
             del data[index]['WorkoutPath']
     return EMPTY_WORKOUT if len(data) == 0 else data
 
-
 def read_workout_statistics():
     var_path = os.path.join(os.getcwd(), "data", 'Workouts', 'Workout.csv')
     if os.path.exists(var_path):
@@ -122,7 +114,6 @@ def read_workout_statistics():
         return joined_results.to_json(orient='records'), 200
     return jsonify({'Error': 'File associated with Workouts not found'}), 500
 
-
 def read_activity_statistics():
     activity_statistics = []
     for activity in HOME_PAGE_ACTIVITIES:
@@ -134,10 +125,9 @@ def read_activity_statistics():
                 'metricName': remove_tag(activity),
                 'value': int(df.sum()),
                 'metricText': HOME_PAGE_ACTIVITIES_DESCRIPTIONS[remove_tag(activity)],
-                'change': round_value(determine_trends(df['value'].tolist()) * 100),
+                'change': round_value(determine_value_trend(var_path)),
             })
     return jsonify(activity_statistics), 200
-
 
 def grab_audio_statistics():
     audio_statistics = {
@@ -154,7 +144,6 @@ def grab_audio_statistics():
                 audio_statistics[f'Highest {remove_tag(file)}'] = float(
                     df.max())
     return jsonify(audio_statistics), 200
-
 
 def get_vitals_by_data(record, start_date, end_date):
     """

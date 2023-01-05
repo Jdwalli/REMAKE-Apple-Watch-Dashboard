@@ -19,12 +19,13 @@ def upload_export():
     return upload_health_export(request.files)
 
 # ACTIVITY HEALTH RECORDS
-
 @app.route("/api/records/HomeStatistics", methods=["GET"])
+@cache.cached(timeout=3600)
 def send_home_activity_records():
     return read_activity_statistics()
 
 @app.route("/api/records", methods=["GET"])
+@cache.cached(timeout=3600)
 def send_records_information():
     return jsonify({'Error': 'Not implemented yet'}), 500
 

@@ -1,15 +1,10 @@
-def determine_trends(nums: list):
-    summed_nums = sum(nums)
-    multiplied_data = 0
-    summed_index = 0
-    squared_index = 0
+import pandas as pd
 
-    for index, num in enumerate(nums):
-        index += 1
-        multiplied_data += index * num
-        summed_index += index
-        squared_index += index**2
-
-    numerator = (len(nums) * multiplied_data) - (summed_nums * summed_index)
-    denominator = (len(nums) * squared_index) - summed_index**2
-    return numerator/denominator if denominator != 0 else 0
+def determine_value_trend(path):
+    df = pd.read_csv(path, usecols=['startDate', 'value'])
+    df['value'] = pd.to_numeric(df['value'])
+    df['startDate'] = pd.to_datetime(df['startDate'])
+    df['date'] = df['startDate'].dt.date
+    grouped = df.groupby('date')
+    sum_values = grouped['value'].sum()
+    return sum_values.pct_change().mean()
