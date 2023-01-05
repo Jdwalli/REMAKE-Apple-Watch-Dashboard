@@ -11,23 +11,21 @@ interface MetricCardProps {
 }
 
 const ActivityMetricsRow: FunctionComponent = (props) => {
-  const [totalCards, setTotalCards] = useState<number>(5);
   const [MetricCards, setMetricCards] = useState<MetricCardProps[]>([]);
 
   useEffect(() => {
     RecordsRequest("records", "HomeStatistics").then((response) => {
       if (response) {
         const workoutEvents = response as MetricCardProps[];
-        setTotalCards(workoutEvents.length);
-        console.log(workoutEvents.length)
-        console.log(typeof(workoutEvents), workoutEvents)
+        console.log(workoutEvents.length);
+        console.log(typeof workoutEvents, workoutEvents);
         setMetricCards(workoutEvents);
       }
     });
   }, []);
 
   return (
-    <div className={`grid grid-cols-${totalCards} gap-2`}>
+    <div className={`grid grid-cols-5 gap-4`}>
       {MetricCards.map((card) => {
         return (
           <MetricCard
